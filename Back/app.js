@@ -5,6 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { Sequelize } from "sequelize";
 import cookieParser from "cookie-parser";
+import bcryptjs from "bcryptjs";
 
 dotenv.config({ path: "./env/.env" });
 
@@ -28,6 +29,21 @@ app.use(cors({
 //routes
 app.use(indexRouter);
 app.use(register);
+
+app.get("/compare", (req, res) => {
+
+  const salt = bcryptjs.genSaltSync(10);
+  const hash = bcryptjs.hashSync("123456", salt);
+  console.log(hash);
+  let compare =  bcryptjs.compareSync("123456", hash); // true
+    if (compare) {
+      res.json('ok')
+    } else {
+      res.json('no')
+    }
+  
+})
+
 
 app.listen(port, () => {
   console.log(`Server on port ${port}`);
