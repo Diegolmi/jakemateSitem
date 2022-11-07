@@ -1,42 +1,103 @@
-// const jwt = require('jsonwebtoken')
-// const bcrypt = require('bcryptjs')
-// const { promisify } = require('util')
-// const conexion = require('../databases/db')
-// import jwt from "jsonwebtoken";
-// import bcrypt from "bcryptjs/dist/bcrypt";
-// import { promisify } from "util";
-// import conexion from "../databases/db.js";
-
 import { pool } from "../databases/db.js";
+import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken";
+import cookies from "cookie-parser";
 
 
-export const register = async(req, res) => {
+export const createRegister = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-    console.log(pool)
- 
-    const { username, email, password } = req.body;
-    const [result] = await pool.query( "INSERT INTO register(username, email, password) VALUES (? , ? , ?)" , [username, email, password]);
-     
-    res.json({
-        id: result.insertId,
-        username,
-        email,
-        password
-    })
-    console.log(result)
+    let passHash = await bcryptjs.hash(password, 10);
+    const [result] = await pool.query(
+      "INSERT INTO register SET ?", { email, password: passHash }
+    );
+    res.status(201).json({ message: "User created successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-}
+export const getRegister = async (req, res) => {
+  try {
+    const [result] = await pool.query(
+      "SELECT * FROM register ORDER BY createAt DESC"
+    );
+    res.json(result);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getRegisterById = async (req, res) => {
+  try {
+    const [result] = await pool.query("SELECT * FROM register WHERE id = ?", [
+      req.params.id,
+    ]);
+    res.json(result);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateRegister = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const [result] = await pool.query(
+      "UPDATE register SET  email = ?, password = ? WHERE id = ?",
+      [email, password, req.params.id]
+    );
+    res.json(result);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteRegister = async (req, res) => {
+  try {
+    const [result] = await pool.query("DELETE FROM register WHERE idregister = ?", [
+      req.params.id,
+    ]);
+    res.json(result);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const [result] = await pool.query("SELECT * FROM register WHERE email = ?", [
+      email,
+    ]);
+
+    console.log(result[0].password, "result");
+    if (result.length > 0 ) {
+      const validPassword = await bcryptjs.compare(password, result[0].password);
+      console.log(validPassword, "validPassword");
+      if (validPassword) {
+        const id = result[0].id;
+        const token = jwt.sign({ id: id }, token_secreto, {
+          expiresIn: 60 * 60 * 24,
+        });
+        const cookiesOptions = {
+          expires: new Date(
+            Date.now() + 60 * 60 * 24 * 1000
+          ),
+          httpOnly: true,
+        };
+        res.cookie("jwt", token, cookiesOptions);
+        res.status(200).json({ auth: true, token: token });
+      } else {
+        res.json({ auth: false, message: "Invalid password" });
+      }
+    } else {
+      res.json({ auth: false, message: "User not found" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 
-
-
-
-// exports.register = async (req, res) => {
-//     console.log(req.body)
-
-//     const email = req.body.email
-//     const password = req.body.password
-
-//     console.log(email, password)
-
-// }
+// Path: Back\controllers\authController.js

@@ -1,11 +1,14 @@
 import { Router } from "express";
-import { register } from "../controllers/authController.js";
+import { createRegister, getRegister, getRegisterById, updateRegister, deleteRegister, login  } from "../controllers/authController.js";
 const router = Router();
 
 // router.get('/register', register)
-router.get('/register:id')
-router.post('/register', register)
-router.put('/register/:id')
-router.delete('/register/:id')
+router.get('/register/:id', getRegisterById)
+router.get('/register', getRegister)
+router.post('/register', createRegister)
+router.put('/register/:id', updateRegister )
+router.delete('/register/:id', deleteRegister)
+router.post('/login', login)
+
 
 export default router;
