@@ -1,0 +1,14 @@
+.tablaProductos {
+    color: white;
+}
+.tablaProductos th {
+    background-color: #4CAF50;
+    color: white;
+}
+.tablaProductos tr td {
+    color: white;
+}
+.formUpdateProductos {
+    margin: 5px;
+    padding: 5px;
+}

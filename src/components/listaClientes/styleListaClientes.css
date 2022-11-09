@@ -1,0 +1,16 @@
+.tablaClientes {
+    color: white;
+}
+.tablaClientes th {
+    background-color: #4ca8af;
+    color: white;
+    font-size: 0.9em;
+}
+.tablaClientes  td {
+    color: white;
+    font-size: 0.7em;
+}
+.formUpdateProductos {
+    margin: 5px;
+    padding: 5px;
+}
